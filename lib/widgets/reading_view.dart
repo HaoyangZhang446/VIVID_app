@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart'; // For rootBundle
 import 'package:video_player/video_player.dart';
 import 'package:just_audio/just_audio.dart';
 
 class ReadingView extends StatefulWidget {
   final int mode; // 0: Text + Pictures, 1: Text Only, 2: Text + Audio, 3: Text + Video
+  final int chapter; // 当前章节
 
-  ReadingView({required this.mode});
+  ReadingView({required this.mode, required this.chapter});
 
   @override
   _ReadingViewState createState() => _ReadingViewState();
@@ -16,24 +18,22 @@ class _ReadingViewState extends State<ReadingView> {
   late VideoPlayerController _videoController;
   late AudioPlayer _audioPlayer;
 
+  String _textContent = '';
+  List<String> _pictures = [];
   int _currentPictureIndex = 0;
-  final List<String> _pictures = [
-    'assets/picture1.png', // 替换为你的图片路径
-    'assets/picture2.png',
-    'assets/picture3.png',
-  ];
   bool _isPlayingAudio = false;
 
   @override
   void initState() {
     super.initState();
 
-    // 初始化视频播放器
+    // 初始化播放器
     _videoController = VideoPlayerController.asset('assets/video_test.mp4')..initialize();
-
-    // 初始化音频播放器
     _audioPlayer = AudioPlayer();
     _audioPlayer.setAsset('assets/1_part0.mp3');
+
+    // 加载章节内容
+    _loadChapterContent();
 
     // 监听滚动事件，切换图片
     _scrollController.addListener(() {
@@ -53,6 +53,11 @@ class _ReadingViewState extends State<ReadingView> {
   void didUpdateWidget(covariant ReadingView oldWidget) {
     super.didUpdateWidget(oldWidget);
 
+    // 如果章节改变，重新加载内容
+    if (oldWidget.chapter != widget.chapter) {
+      _loadChapterContent();
+    }
+
     // 停止音频播放并重置状态
     if (oldWidget.mode == 2 && widget.mode != 2) {
       _audioPlayer.stop();
@@ -62,38 +67,34 @@ class _ReadingViewState extends State<ReadingView> {
     }
   }
 
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    _videoController.dispose();
-    _audioPlayer.dispose();
-    super.dispose();
+  Future<void> _loadChapterContent() async {
+    // 加载文本内容
+    String chapterText = await rootBundle.loadString('assets/chapters/${widget.chapter}.txt');
+    // 加载图片路径
+    List<String> chapterPictures = [
+      'assets/chapter${widget.chapter}/pictures/picture1.png',
+      'assets/chapter${widget.chapter}/pictures/picture2.png',
+      'assets/chapter${widget.chapter}/pictures/picture3.png',
+    ];
+
+    setState(() {
+      _textContent = chapterText;
+      _pictures = chapterPictures;
+      _currentPictureIndex = 0;
+    });
   }
 
-Future<void> _toggleAudioPlayback() async {
-  print("in");
-  print(_isPlayingAudio);
-  try {
+  Future<void> _toggleAudioPlayback() async {
     if (_isPlayingAudio) {
-      _audioPlayer.pause();
+      await _audioPlayer.pause();
     } else {
-      print("test1");
-      _audioPlayer.play();
-      print("test2");
+      await _audioPlayer.play();
     }
-  } catch (e) {
-    print("Error during playback toggle: $e");
+
+    setState(() {
+      _isPlayingAudio = _audioPlayer.playing;
+    });
   }
-
-  // 使用 AudioPlayer 的状态监听来同步播放状态
-  setState(() {
-    _isPlayingAudio = _audioPlayer.playing;
-  });
-
-  print("out");
-  print(_isPlayingAudio);
-}
-
 
   @override
   Widget build(BuildContext context) {
@@ -107,14 +108,16 @@ Future<void> _toggleAudioPlayback() async {
               controller: _scrollController,
               padding: EdgeInsets.all(16.0),
               child: Text(
-                'Long text content goes here...\n\n' * 20, // 替换为实际文本
+                _textContent,
                 style: TextStyle(fontSize: 16),
               ),
             ),
           ),
           Expanded(
             flex: 2,
-            child: Image.asset(_pictures[_currentPictureIndex]),
+            child: _pictures.isNotEmpty
+                ? Image.asset(_pictures[_currentPictureIndex])
+                : Center(child: Text('No pictures available')),
           ),
         ],
       );
@@ -123,7 +126,7 @@ Future<void> _toggleAudioPlayback() async {
       return SingleChildScrollView(
         padding: EdgeInsets.all(16.0),
         child: Text(
-          'Long text content goes here...\n\n' * 20,
+          _textContent,
           style: TextStyle(fontSize: 16),
         ),
       );
@@ -134,7 +137,7 @@ Future<void> _toggleAudioPlayback() async {
           SingleChildScrollView(
             padding: EdgeInsets.all(16.0),
             child: Text(
-              'Long text content goes here...\n\n' * 20,
+              _textContent,
               style: TextStyle(fontSize: 16),
             ),
           ),

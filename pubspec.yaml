@@ -28,8 +28,8 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-    - assets/picture1.png
-    - assets/picture2.png
-    - assets/picture3.png
+    - assets/chapter1/pictures/
+    - assets/chapter2/pictures/
+    - assets/chapters/
     - assets/1_part0.mp3
     - assets/video_test.mp4
