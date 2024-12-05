@@ -10,9 +10,6 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     var appState = context.watch<MyAppState>();
 
-    // 示例视频链接，可以根据需要替换成动态链接
-    String videoUrl = "https://drive.googleusercontent.com/file/d/1g-5bY71FVBSXXlTUbTYAsPiNrV1jOxLM/view?usp=sharing";
-
     return Scaffold(
       body: Row(
         children: [
@@ -20,17 +17,19 @@ class HomeScreen extends StatelessWidget {
           NovelSelector(),
           // 右侧阅读界面
           Expanded(
-            child: ReadingView(
-              mode: appState.currentMode,
-              videoUrl: videoUrl,
-            ),
+            child: ReadingView(mode: appState.currentMode),
           ),
         ],
       ),
-      // 底部切换按钮
-      bottomNavigationBar: ModeSwitcher(onModeChange: (mode) {
-        appState.changeMode(mode);
-      }),
+      // 增加一些外观效果
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          border: Border(top: BorderSide(color: Colors.grey[300]!, width: 1)),
+        ),
+        child: ModeSwitcher(onModeChange: (mode) {
+          appState.changeMode(mode);
+        }),
+      ),
     );
   }
 }
