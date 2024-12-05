@@ -25,7 +25,7 @@ class ModeSwitcher extends StatelessWidget {
       items: [
         BottomNavigationBarItem(
           icon: Icon(Icons.image, size: 28), // 调整图标大小
-          label: 'Text + Pictures',
+          label: 'Text + Visuals',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.text_fields, size: 28), // 调整图标大小
@@ -37,7 +37,7 @@ class ModeSwitcher extends StatelessWidget {
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.videocam, size: 28), // 调整图标大小
-          label: 'Text + Video',
+          label: 'Multimodal',
         ),
       ],
     );

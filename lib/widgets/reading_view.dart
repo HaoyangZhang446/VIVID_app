@@ -75,6 +75,7 @@ class _ReadingViewState extends State<ReadingView> {
       'assets/chapter${widget.chapter}/pictures/picture1.png',
       'assets/chapter${widget.chapter}/pictures/picture2.png',
       'assets/chapter${widget.chapter}/pictures/picture3.png',
+      'assets/chapter${widget.chapter}/pictures/picture4.png',
     ];
 
     setState(() {
